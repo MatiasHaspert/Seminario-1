@@ -1,0 +1,26 @@
+# ====================================================================
+# Archivos de configuración de Visual Studio e IDEs
+# ====================================================================
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ====================================================================
+# Carpetas de Compilación (.NET Core / Standard / Framework)
+# Agarra bin/ y obj/ en cualquier nivel del proyecto (WebApi, WinForms, etc.)
+# ====================================================================
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bld/
+
+# ====================================================================
+# Archivos generados por el usuario / Almacenamiento local (Uploads)
+# ====================================================================
+**/WebApi/Storage/
+**/WebApi/wwwroot/
