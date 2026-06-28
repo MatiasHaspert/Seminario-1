@@ -1,0 +1,214 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Application</name>
+    </assembly>
+    <members>
+        <member name="T:Application.DTOs.Amenity.AmenityRequestDTO">
+            <summary>Datos requeridos para crear o actualizar un servicio.</summary>
+        </member>
+        <member name="P:Application.DTOs.Amenity.AmenityRequestDTO.Name">
+            <summary>Nombre del servicio (entre 2 y 100 caracteres).</summary>
+            <example>Wi-Fi</example>
+        </member>
+        <member name="T:Application.DTOs.Payments.ChangePaymentStatusDTO">
+            <summary>Nuevo estado que el dueño quiere asignar a un pago.</summary>
+        </member>
+        <member name="P:Application.DTOs.Payments.ChangePaymentStatusDTO.PaymentStatus">
+            <summary>Estado destino del comprobante. 1 = Approved (aprobado), 2 = Rejected (rechazado).</summary>
+            <example>1</example>
+        </member>
+        <member name="T:Application.DTOs.Payments.PaymentRequestDTO">
+            <summary>Datos que envía el huésped al subir un comprobante de pago (multipart/form-data).</summary>
+        </member>
+        <member name="P:Application.DTOs.Payments.PaymentRequestDTO.reservationId">
+            <summary>Identificador de la reserva a la que corresponde el pago.</summary>
+            <example>1</example>
+        </member>
+        <member name="P:Application.DTOs.Payments.PaymentRequestDTO.PaymentMethod">
+            <summary>Método de pago. 0 = CreditCard, 1 = DebitCard, 2 = PayPal, 3 = BankTransfer.</summary>
+            <example>3</example>
+        </member>
+        <member name="P:Application.DTOs.Payments.PaymentRequestDTO.file">
+            <summary>Archivo del comprobante de pago (imagen o PDF).</summary>
+        </member>
+        <member name="T:Application.DTOs.PropertyAvailability.PropertyAvailabilityRequestDTO">
+            <summary>Datos requeridos para crear o actualizar un rango de disponibilidad.</summary>
+        </member>
+        <member name="P:Application.DTOs.PropertyAvailability.PropertyAvailabilityRequestDTO.StartDate">
+            <summary>Fecha de inicio del rango disponible.</summary>
+            <example>2026-01-01</example>
+        </member>
+        <member name="P:Application.DTOs.PropertyAvailability.PropertyAvailabilityRequestDTO.EndDate">
+            <summary>Fecha de fin del rango disponible.</summary>
+            <example>2026-12-31</example>
+        </member>
+        <member name="P:Application.DTOs.PropertyAvailability.PropertyAvailabilityRequestDTO.PropertyId">
+            <summary>Identificador de la propiedad.</summary>
+            <example>1</example>
+        </member>
+        <member name="T:Application.DTOs.PropertySearchRequestDTO">
+            <summary>Filtros opcionales que el usuario puede aplicar al buscar propiedades.</summary>
+        </member>
+        <member name="P:Application.DTOs.PropertySearchRequestDTO.City">
+            <summary>Ciudad donde buscar.</summary>
+            <example>Rosario</example>
+        </member>
+        <member name="P:Application.DTOs.PropertySearchRequestDTO.Guests">
+            <summary>Cantidad mínima de huéspedes que debe admitir la propiedad.</summary>
+            <example>2</example>
+        </member>
+        <member name="P:Application.DTOs.PropertySearchRequestDTO.CheckIn">
+            <summary>Fecha de check-in deseada.</summary>
+            <example>2026-08-05</example>
+        </member>
+        <member name="P:Application.DTOs.PropertySearchRequestDTO.CheckOut">
+            <summary>Fecha de check-out deseada.</summary>
+            <example>2026-08-10</example>
+        </member>
+        <member name="T:Application.DTOs.Property.PropertyRequestDTO">
+            <summary>Datos que envía el dueño al crear o editar una propiedad.</summary>
+        </member>
+        <member name="P:Application.DTOs.Property.PropertyRequestDTO.Title">
+            <summary>Título de la publicación.</summary>
+            <example>Casa Alpina</example>
+        </member>
+        <member name="P:Application.DTOs.Property.PropertyRequestDTO.NightlyPrice">
+            <summary>Precio por noche.</summary>
+            <example>120000</example>
+        </member>
+        <member name="P:Application.DTOs.Property.PropertyRequestDTO.MaxGuests">
+            <summary>Capacidad máxima de huéspedes.</summary>
+            <example>4</example>
+        </member>
+        <member name="P:Application.DTOs.Property.PropertyRequestDTO.Bedrooms">
+            <summary>Cantidad de habitaciones.</summary>
+            <example>3</example>
+        </member>
+        <member name="P:Application.DTOs.Property.PropertyRequestDTO.Bathrooms">
+            <summary>Cantidad de baños.</summary>
+            <example>2</example>
+        </member>
+        <member name="P:Application.DTOs.Property.PropertyRequestDTO.City">
+            <summary>Ciudad de la propiedad.</summary>
+            <example>Rosario</example>
+        </member>
+        <member name="P:Application.DTOs.Property.PropertyRequestDTO.State">
+            <summary>Provincia o estado.</summary>
+            <example>Santa Fe</example>
+        </member>
+        <member name="P:Application.DTOs.Property.PropertyRequestDTO.Country">
+            <summary>País.</summary>
+            <example>Argentina</example>
+        </member>
+        <member name="P:Application.DTOs.Property.PropertyRequestDTO.StreetAddress">
+            <summary>Dirección (calle y número).</summary>
+            <example>Calle Montaña 123</example>
+        </member>
+        <member name="P:Application.DTOs.Property.PropertyRequestDTO.PostalCode">
+            <summary>Código postal (entre 1 y 99999).</summary>
+            <example>2000</example>
+        </member>
+        <member name="P:Application.DTOs.Property.PropertyRequestDTO.Description">
+            <summary>Descripción de la propiedad (hasta 3000 caracteres).</summary>
+            <example>Encantadora casa de montaña, ideal para familias, con amplio jardín y entorno tranquilo.</example>
+        </member>
+        <member name="P:Application.DTOs.Property.PropertyRequestDTO.AmenityIds">
+            <summary>IDs de los servicios (amenities) a asociar, elegidos de la lista existente.</summary>
+            <example>[1, 2]</example>
+        </member>
+        <member name="T:Application.DTOs.Reservation.ChangeReservationStatusDTO">
+            <summary>Nuevo estado que el dueño quiere asignar a una reserva.</summary>
+        </member>
+        <member name="P:Application.DTOs.Reservation.ChangeReservationStatusDTO.Status">
+            <summary>Estado destino de la reserva (ver valores posibles en el esquema).</summary>
+            <example>2</example>
+        </member>
+        <member name="T:Application.DTOs.Reservation.ReservationRequestDTO">
+            <summary>Datos que envía el huésped al crear una reserva.</summary>
+        </member>
+        <member name="P:Application.DTOs.Reservation.ReservationRequestDTO.PropertyId">
+            <summary>Identificador de la propiedad a reservar.</summary>
+            <example>1</example>
+        </member>
+        <member name="P:Application.DTOs.Reservation.ReservationRequestDTO.StartDate">
+            <summary>Fecha de inicio de la estadía (check-in).</summary>
+            <example>2026-08-05</example>
+        </member>
+        <member name="P:Application.DTOs.Reservation.ReservationRequestDTO.EndDate">
+            <summary>Fecha de fin de la estadía (check-out).</summary>
+            <example>2026-08-10</example>
+        </member>
+        <member name="P:Application.DTOs.Reservation.ReservationRequestDTO.TotalGuests">
+            <summary>Cantidad total de huéspedes.</summary>
+            <example>2</example>
+        </member>
+        <member name="T:Application.DTOs.Review.ReviewRequestDTO">
+            <summary>Datos que envía el usuario al crear o editar una reseña.</summary>
+        </member>
+        <member name="P:Application.DTOs.Review.ReviewRequestDTO.Rating">
+            <summary>Calificación de la propiedad, del 1 al 5.</summary>
+            <example>5</example>
+        </member>
+        <member name="P:Application.DTOs.Review.ReviewRequestDTO.Comment">
+            <summary>Comentario de la reseña (entre 10 y 1000 caracteres).</summary>
+            <example>Excelente lugar, muy limpio y con una vista increíble.</example>
+        </member>
+        <member name="P:Application.DTOs.Review.ReviewRequestDTO.PropertyId">
+            <summary>Identificador de la propiedad reseñada.</summary>
+            <example>1</example>
+        </member>
+        <member name="T:Application.DTOs.User.UpdateUserRoleDTO">
+            <summary>Nuevo rol que el administrador asigna a un usuario.</summary>
+        </member>
+        <member name="P:Application.DTOs.User.UpdateUserRoleDTO.Role">
+            <summary>Rol destino. 0 = User, 1 = Owner, 2 = Admin.</summary>
+            <example>1</example>
+        </member>
+        <member name="T:Application.DTOs.User.UpdateUserStatusDTO">
+            <summary>Estado de habilitación que el administrador aplica a un usuario.</summary>
+        </member>
+        <member name="P:Application.DTOs.User.UpdateUserStatusDTO.IsActive">
+            <summary><c>true</c> para habilitar la cuenta; <c>false</c> para darla de baja lógicamente.</summary>
+            <example>false</example>
+        </member>
+        <member name="T:Application.DTOs.User.UserLoginDTO">
+            <summary>Credenciales que envía el usuario para iniciar sesión.</summary>
+        </member>
+        <member name="P:Application.DTOs.User.UserLoginDTO.Email">
+            <summary>Email de la cuenta.</summary>
+            <example>user1@example.com</example>
+        </member>
+        <member name="P:Application.DTOs.User.UserLoginDTO.Password">
+            <summary>Contraseña de la cuenta.</summary>
+            <example>user1</example>
+        </member>
+        <member name="T:Application.DTOs.User.UserRegisterDTO">
+            <summary>Datos que envía el usuario al registrarse en el sistema.</summary>
+        </member>
+        <member name="P:Application.DTOs.User.UserRegisterDTO.Name">
+            <summary>Nombre del usuario.</summary>
+            <example>Juan</example>
+        </member>
+        <member name="P:Application.DTOs.User.UserRegisterDTO.LastName">
+            <summary>Apellido del usuario.</summary>
+            <example>Pérez</example>
+        </member>
+        <member name="P:Application.DTOs.User.UserRegisterDTO.Email">
+            <summary>Email único de la cuenta.</summary>
+            <example>juan.perez@example.com</example>
+        </member>
+        <member name="P:Application.DTOs.User.UserRegisterDTO.Password">
+            <summary>Contraseña (entre 6 y 100 caracteres).</summary>
+            <example>secret123</example>
+        </member>
+        <member name="P:Application.DTOs.User.UserRegisterDTO.Phone">
+            <summary>Teléfono de contacto (opcional).</summary>
+            <example>3415551234</example>
+        </member>
+        <member name="P:Application.DTOs.User.UserRegisterDTO.role">
+            <summary>Rol con el que se registra el usuario. 0 = User (huésped), 1 = Owner (dueño).</summary>
+            <example>0</example>
+        </member>
+    </members>
+</doc>

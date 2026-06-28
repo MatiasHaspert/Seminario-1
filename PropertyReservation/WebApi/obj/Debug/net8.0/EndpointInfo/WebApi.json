@@ -1,0 +1,3946 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Property Reservation System API",
+    "description": "API REST del **Sistema de Reservas de Propiedades**.\n\nPermite gestionar propiedades, disponibilidad, reservas, pagos, reseñas,\nservicios (*amenities*) y usuarios. La autenticación es por **JWT** y la\nautorización por roles: `User` (huésped), `Owner` (dueño) y `Admin`.\n\n### Cómo autenticarse\n1. Obtené un token con `POST /api/Auth/login`.\n2. Hacé clic en **Authorize** 🔒 (arriba a la derecha) e ingresá `Bearer {token}`.\n3. A partir de ahí, los endpoints protegidos enviarán el token automáticamente.\n\n### Usuarios de demostración\n| Rol            | Email              | Contraseña |\n|----------------|--------------------|------------|\n| Admin          | admin@example.com  | admin      |\n| Owner (dueño)  | owner1@example.com | owner1     |\n| User (huésped) | user1@example.com  | user1      |",
+    "contact": {
+      "name": "Equipo Property Reservation System",
+      "email": "soporte@propertyreservation.com"
+    },
+    "license": {
+      "name": "Uso académico — AUS Seminario I"
+    },
+    "version": "v1"
+  },
+  "paths": {
+    "/api/Admin/stats": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Obtiene las estadísticas generales del sistema.",
+        "description": "Totales de propiedades, reservas, usuarios, ingresos, etc. para el dashboard.",
+        "responses": {
+          "200": {
+            "description": "Estadísticas del sistema.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminStatsDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Amenity": {
+      "get": {
+        "tags": [
+          "Amenity"
+        ],
+        "summary": "Lista los servicios disponibles.",
+        "description": "Endpoint público.",
+        "responses": {
+          "200": {
+            "description": "Listado de servicios.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AmenityResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Amenity"
+        ],
+        "summary": "Crea un nuevo servicio.",
+        "requestBody": {
+          "description": "Datos del servicio a crear.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/AmenityRequestDTO"
+                  }
+                ],
+                "description": "Datos requeridos para crear o actualizar un servicio."
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/AmenityRequestDTO"
+                  }
+                ],
+                "description": "Datos requeridos para crear o actualizar un servicio."
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/AmenityRequestDTO"
+                  }
+                ],
+                "description": "Datos requeridos para crear o actualizar un servicio."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Servicio creado correctamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AmenityResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Ya existe un servicio con ese nombre.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Amenity/{id}": {
+      "delete": {
+        "tags": [
+          "Amenity"
+        ],
+        "summary": "Elimina un servicio.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador del servicio a eliminar.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Servicio eliminado correctamente."
+          },
+          "404": {
+            "description": "No existe el servicio.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Amenity"
+        ],
+        "summary": "Actualiza el nombre de un servicio.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador del servicio.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Nuevo nombre del servicio.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/AmenityRequestDTO"
+                  }
+                ],
+                "description": "Datos requeridos para crear o actualizar un servicio."
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/AmenityRequestDTO"
+                  }
+                ],
+                "description": "Datos requeridos para crear o actualizar un servicio."
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/AmenityRequestDTO"
+                  }
+                ],
+                "description": "Datos requeridos para crear o actualizar un servicio."
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Servicio actualizado correctamente."
+          },
+          "404": {
+            "description": "No existe el servicio.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Ya existe otro servicio con ese nombre, o el servicio está asignado a una o más propiedades.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Inicia sesión y devuelve el token JWT.",
+        "description": "Endpoint público. Copiá el campo `token` de la respuesta y usalo en **Authorize** 🔒\r\npara acceder a los endpoints protegidos.",
+        "requestBody": {
+          "description": "Credenciales de acceso (email y contraseña).",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserLoginDTO"
+                  }
+                ],
+                "description": "Credenciales que envía el usuario para iniciar sesión."
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserLoginDTO"
+                  }
+                ],
+                "description": "Credenciales que envía el usuario para iniciar sesión."
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserLoginDTO"
+                  }
+                ],
+                "description": "Credenciales que envía el usuario para iniciar sesión."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Autenticación exitosa: devuelve el token y los datos del usuario.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales inválidas o cuenta deshabilitada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Devuelve los datos del usuario autenticado actualmente.",
+        "description": "Requiere un token JWT válido en el header `Authorization`.",
+        "responses": {
+          "200": {
+            "description": "Datos del usuario autenticado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado o token inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Registra un nuevo usuario en el sistema.",
+        "description": "Endpoint público. El rol (`User` u `Owner`) se indica en el cuerpo; el email debe ser único.",
+        "requestBody": {
+          "description": "Datos de alta del usuario.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserRegisterDTO"
+                  }
+                ],
+                "description": "Datos que envía el usuario al registrarse en el sistema."
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserRegisterDTO"
+                  }
+                ],
+                "description": "Datos que envía el usuario al registrarse en el sistema."
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserRegisterDTO"
+                  }
+                ],
+                "description": "Datos que envía el usuario al registrarse en el sistema."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuario registrado correctamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos o el email ya está en uso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Payments": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Sube un comprobante de pago para una reserva.",
+        "description": "Solo el huésped dueño de la reserva puede subir el comprobante. Se envía como\r\n`multipart/form-data` e incluye la reserva, el método de pago y el archivo.",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "file",
+                  "PaymentMethod",
+                  "reservationId"
+                ],
+                "type": "object",
+                "properties": {
+                  "reservationId": {
+                    "type": "integer",
+                    "description": "Identificador de la reserva a la que corresponde el pago.",
+                    "format": "int32",
+                    "example": 1
+                  },
+                  "PaymentMethod": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/PaymentMethod"
+                      }
+                    ],
+                    "description": "Método de pago. 0 = CreditCard, 1 = DebitCard, 2 = PayPal, 3 = BankTransfer.",
+                    "example": 3
+                  },
+                  "file": {
+                    "type": "string",
+                    "description": "Archivo del comprobante de pago (imagen o PDF).",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "reservationId": {
+                  "style": "form"
+                },
+                "PaymentMethod": {
+                  "style": "form"
+                },
+                "file": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comprobante registrado correctamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La reserva ya tiene un comprobante o no admite pago en este estado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Payments/{paymentId}": {
+      "delete": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Elimina un comprobante que está en revisión.",
+        "description": "Solo el huésped que lo subió puede eliminarlo, y únicamente mientras siga en revisión.",
+        "parameters": [
+          {
+            "name": "paymentId",
+            "in": "path",
+            "description": "Identificador del pago.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Comprobante eliminado correctamente."
+          },
+          "404": {
+            "description": "No existe el pago.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "El comprobante ya fue revisado y no puede eliminarse.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Payments/{paymentId}/proof": {
+      "get": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Descarga el archivo del comprobante de un pago.",
+        "description": "Accesible para el huésped dueño del pago, el dueño de la propiedad o un administrador.",
+        "parameters": [
+          {
+            "name": "paymentId",
+            "in": "path",
+            "description": "Identificador del pago.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Archivo binario del comprobante.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe el pago o el archivo del comprobante.",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "image/jpeg": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Payments/{paymentId}/status": {
+      "patch": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Aprueba o rechaza un comprobante de pago.",
+        "description": "Permitido al dueño de la propiedad o a un administrador.",
+        "parameters": [
+          {
+            "name": "paymentId",
+            "in": "path",
+            "description": "Identificador del pago.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "PaymentStatus",
+            "in": "query",
+            "description": "Estado destino del comprobante. 1 = Approved (aprobado), 2 = Rejected (rechazado).",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/PaymentStatus"
+                }
+              ],
+              "example": 1
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Estado del comprobante actualizado."
+          },
+          "404": {
+            "description": "No existe el pago.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "El comprobante no admite el cambio de estado solicitado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Payments/underReview": {
+      "get": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Lista los comprobantes pendientes de revisión.",
+        "description": "El dueño ve solo los de sus propiedades; el administrador, todos.",
+        "responses": {
+          "200": {
+            "description": "Comprobantes en revisión.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PendingPaymentListDTO"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Property": {
+      "get": {
+        "tags": [
+          "Property"
+        ],
+        "summary": "Lista las propiedades publicadas.",
+        "description": "Endpoint público. Si includeDeleted es `true` y el usuario\r\nautenticado es `Admin`, también incluye las propiedades dadas de baja (soft-delete).",
+        "parameters": [
+          {
+            "name": "includeDeleted",
+            "in": "query",
+            "description": "Incluir las propiedades eliminadas lógicamente (solo Admin).",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado de propiedades.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PropertyListResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Se pidió `includeDeleted=true` sin ser administrador.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Property"
+        ],
+        "summary": "Crea una nueva propiedad.",
+        "description": "🔒 **Roles permitidos:** Owner, Admin.",
+        "requestBody": {
+          "description": "Datos de la propiedad a crear.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PropertyRequestDTO"
+                  }
+                ],
+                "description": "Datos que envía el dueño al crear o editar una propiedad."
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PropertyRequestDTO"
+                  }
+                ],
+                "description": "Datos que envía el dueño al crear o editar una propiedad."
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PropertyRequestDTO"
+                  }
+                ],
+                "description": "Datos que envía el dueño al crear o editar una propiedad."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Propiedad creada. La cabecera `Location` apunta al detalle.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyListResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Property/{id}": {
+      "get": {
+        "tags": [
+          "Property"
+        ],
+        "summary": "Obtiene el detalle completo de una propiedad.",
+        "description": "Endpoint público.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador de la propiedad.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle de la propiedad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyDetailsResponseDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe una propiedad con ese identificador.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Property"
+        ],
+        "summary": "Actualiza una propiedad existente.",
+        "description": "El dueño solo puede modificar las suyas; el administrador, cualquiera.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador de la propiedad a actualizar.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Nuevos datos de la propiedad.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PropertyRequestDTO"
+                  }
+                ],
+                "description": "Datos que envía el dueño al crear o editar una propiedad."
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PropertyRequestDTO"
+                  }
+                ],
+                "description": "Datos que envía el dueño al crear o editar una propiedad."
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PropertyRequestDTO"
+                  }
+                ],
+                "description": "Datos que envía el dueño al crear o editar una propiedad."
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Propiedad actualizada correctamente."
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe la propiedad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Property/{propertyId}": {
+      "delete": {
+        "tags": [
+          "Property"
+        ],
+        "summary": "Elimina una propiedad (baja lógica / soft-delete).",
+        "description": "El dueño solo puede dar de baja las suyas; el administrador, cualquiera.",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "description": "Identificador de la propiedad a dar de baja.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Propiedad dada de baja correctamente."
+          },
+          "400": {
+            "description": "La propiedad no puede eliminarse (por ejemplo, tiene reservas activas).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe la propiedad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Property/{propertyId}/restore": {
+      "post": {
+        "tags": [
+          "Property"
+        ],
+        "summary": "Restaura una propiedad dada de baja lógicamente.",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "description": "Identificador de la propiedad a restaurar.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Propiedad restaurada correctamente."
+          },
+          "400": {
+            "description": "La propiedad no está dada de baja.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe la propiedad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Property/my": {
+      "get": {
+        "tags": [
+          "Property"
+        ],
+        "summary": "Lista las propiedades del dueño autenticado.",
+        "description": "🔒 **Roles permitidos:** Owner.",
+        "responses": {
+          "200": {
+            "description": "Listado de propiedades del dueño.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PropertyListResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Property/search": {
+      "get": {
+        "tags": [
+          "Property"
+        ],
+        "summary": "Busca propiedades con filtros opcionales.",
+        "description": "Endpoint público. Permite filtrar por ciudad, cantidad de huéspedes y rango de fechas.",
+        "parameters": [
+          {
+            "name": "City",
+            "in": "query",
+            "description": "Ciudad donde buscar.",
+            "schema": {
+              "type": "string",
+              "example": "Rosario"
+            },
+            "example": "Rosario"
+          },
+          {
+            "name": "Guests",
+            "in": "query",
+            "description": "Cantidad mínima de huéspedes que debe admitir la propiedad.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "example": 2
+            },
+            "example": 2
+          },
+          {
+            "name": "CheckIn",
+            "in": "query",
+            "description": "Fecha de check-in deseada.",
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "example": "2026-08-05"
+            },
+            "example": "2026-08-05"
+          },
+          {
+            "name": "CheckOut",
+            "in": "query",
+            "description": "Fecha de check-out deseada.",
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "example": "2026-08-10"
+            },
+            "example": "2026-08-10"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Propiedades que cumplen los filtros indicados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PropertyListResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PropertyAvailability": {
+      "post": {
+        "tags": [
+          "PropertyAvailability"
+        ],
+        "summary": "Crea un nuevo rango de disponibilidad para una propiedad.",
+        "description": "Solo el dueño de la propiedad puede crearlo.",
+        "requestBody": {
+          "description": "Propiedad y fechas del nuevo rango.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PropertyAvailabilityRequestDTO"
+                  }
+                ],
+                "description": "Datos requeridos para crear o actualizar un rango de disponibilidad."
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PropertyAvailabilityRequestDTO"
+                  }
+                ],
+                "description": "Datos requeridos para crear o actualizar un rango de disponibilidad."
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PropertyAvailabilityRequestDTO"
+                  }
+                ],
+                "description": "Datos requeridos para crear o actualizar un rango de disponibilidad."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Rango creado correctamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyAvailabilityResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "El rango se solapa con otro existente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/PropertyAvailability/{availabilityId}": {
+      "put": {
+        "tags": [
+          "PropertyAvailability"
+        ],
+        "summary": "Actualiza un rango de disponibilidad existente.",
+        "description": "Solo el dueño de la propiedad puede modificarlo.",
+        "parameters": [
+          {
+            "name": "availabilityId",
+            "in": "path",
+            "description": "Identificador del rango de disponibilidad.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Nuevas fechas del rango.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PropertyAvailabilityRequestDTO"
+                  }
+                ],
+                "description": "Datos requeridos para crear o actualizar un rango de disponibilidad."
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PropertyAvailabilityRequestDTO"
+                  }
+                ],
+                "description": "Datos requeridos para crear o actualizar un rango de disponibilidad."
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/PropertyAvailabilityRequestDTO"
+                  }
+                ],
+                "description": "Datos requeridos para crear o actualizar un rango de disponibilidad."
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Rango actualizado correctamente."
+          },
+          "400": {
+            "description": "Datos inválidos (por ejemplo, fechas incoherentes).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "El rango se solapa con otro existente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/PropertyAvailability/{id}": {
+      "delete": {
+        "tags": [
+          "PropertyAvailability"
+        ],
+        "summary": "Elimina un rango de disponibilidad.",
+        "description": "Solo el dueño puede eliminarlo, y siempre que no tenga reservas activas asociadas.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador del rango de disponibilidad.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Rango eliminado correctamente."
+          },
+          "404": {
+            "description": "No existe el rango de disponibilidad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "El rango tiene reservas activas y no puede eliminarse.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/PropertyAvailability/{propertyId}": {
+      "get": {
+        "tags": [
+          "PropertyAvailability"
+        ],
+        "summary": "Lista los rangos de disponibilidad de una propiedad.",
+        "description": "Endpoint público.",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "description": "Identificador de la propiedad.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rangos de disponibilidad de la propiedad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PropertyAvailabilityResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe la propiedad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PropertyImage/{id}": {
+      "delete": {
+        "tags": [
+          "PropertyImage"
+        ],
+        "summary": "Elimina una imagen de una propiedad.",
+        "description": "Solo el dueño de la propiedad puede eliminarla. Si era la imagen principal,\r\nse promueve automáticamente la siguiente imagen más antigua.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador de la imagen a eliminar.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Imagen eliminada correctamente."
+          },
+          "404": {
+            "description": "No existe la imagen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/PropertyImage/{propertyId}": {
+      "get": {
+        "tags": [
+          "PropertyImage"
+        ],
+        "summary": "Lista las imágenes de una propiedad.",
+        "description": "Endpoint público.",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "description": "Identificador de la propiedad.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imágenes de la propiedad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PropertyImageResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe la propiedad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "PropertyImage"
+        ],
+        "summary": "Sube una o más imágenes a una propiedad.",
+        "description": "Solo el dueño de la propiedad puede subir imágenes. Se envía como\r\n`multipart/form-data`. Formatos permitidos: jpg, jpeg, png y webp.\r\nSi la propiedad aún no tiene imagen principal, la primera subida se marca como tal.",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "description": "Identificador de la propiedad.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              },
+              "encoding": {
+                "files": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Imágenes subidas correctamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PropertyImageResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "La propiedad no existe.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "No se enviaron archivos o algún formato no está permitido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/PropertyImage/main/{id}": {
+      "put": {
+        "tags": [
+          "PropertyImage"
+        ],
+        "summary": "Marca una imagen como la principal de la propiedad.",
+        "description": "Solo el dueño de la propiedad puede hacerlo.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador de la imagen.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Imagen marcada como principal.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyImageResponseDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe la imagen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Reservation": {
+      "post": {
+        "tags": [
+          "Reservation"
+        ],
+        "summary": "Crea una nueva reserva.",
+        "description": "Solo los huéspedes pueden reservar. La reserva nace en estado `PendingPayment`.",
+        "requestBody": {
+          "description": "Propiedad, fechas y cantidad de huéspedes.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ReservationRequestDTO"
+                  }
+                ],
+                "description": "Datos que envía el huésped al crear una reserva."
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ReservationRequestDTO"
+                  }
+                ],
+                "description": "Datos que envía el huésped al crear una reserva."
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ReservationRequestDTO"
+                  }
+                ],
+                "description": "Datos que envía el huésped al crear una reserva."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reserva creada correctamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservationResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos (fechas, capacidad, etc.).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Las fechas se solapan con otra reserva o no hay disponibilidad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Reservation/{id}/status": {
+      "patch": {
+        "tags": [
+          "Reservation"
+        ],
+        "summary": "Cambia el estado de una reserva.",
+        "description": "Permitido al dueño de la propiedad o a un administrador.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador de la reserva.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Nuevo estado a asignar.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ChangeReservationStatusDTO"
+                  }
+                ],
+                "description": "Nuevo estado que el dueño quiere asignar a una reserva."
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ChangeReservationStatusDTO"
+                  }
+                ],
+                "description": "Nuevo estado que el dueño quiere asignar a una reserva."
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ChangeReservationStatusDTO"
+                  }
+                ],
+                "description": "Nuevo estado que el dueño quiere asignar a una reserva."
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Estado actualizado correctamente."
+          },
+          "404": {
+            "description": "No existe la reserva.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La transición de estado no es válida en este momento.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Reservation/{reservationId}": {
+      "get": {
+        "tags": [
+          "Reservation"
+        ],
+        "summary": "Obtiene el detalle de una reserva.",
+        "description": "Accesible para el huésped dueño de la reserva, el dueño de la propiedad o un administrador.",
+        "parameters": [
+          {
+            "name": "reservationId",
+            "in": "path",
+            "description": "Identificador de la reserva.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle de la reserva.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservationResponseDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe la reserva.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Reservation/admin": {
+      "get": {
+        "tags": [
+          "Reservation"
+        ],
+        "summary": "Lista global de reservas con filtros opcionales (panel de administración).",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Estado de la reserva por el que filtrar.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "propertyId",
+            "in": "query",
+            "description": "Filtrar por propiedad.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "guestId",
+            "in": "query",
+            "description": "Filtrar por huésped.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Fecha de inicio mínima (inclusive).",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Fecha de inicio máxima (inclusive).",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reservas que cumplen los filtros.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReservationResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Algún filtro tiene un valor inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Reservation/by-property/{propertyId}": {
+      "get": {
+        "tags": [
+          "Reservation"
+        ],
+        "summary": "Lista las reservas de una propiedad concreta.",
+        "description": "Solo el dueño de la propiedad puede consultarlas.",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "path",
+            "description": "Identificador de la propiedad.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reservas de la propiedad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReservationResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "La propiedad no pertenece al dueño autenticado o no existe.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Reservation/my-reservations": {
+      "get": {
+        "tags": [
+          "Reservation"
+        ],
+        "summary": "Lista las reservas del huésped autenticado.",
+        "description": "🔒 **Roles permitidos:** User.",
+        "responses": {
+          "200": {
+            "description": "Reservas del huésped.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyReservationResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No se pudo determinar el huésped autenticado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Reservation/owner": {
+      "get": {
+        "tags": [
+          "Reservation"
+        ],
+        "summary": "Lista todas las reservas de las propiedades del dueño autenticado.",
+        "description": "🔒 **Roles permitidos:** Owner.",
+        "responses": {
+          "200": {
+            "description": "Reservas de todas las propiedades del dueño.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReservationResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No se pudo determinar el dueño autenticado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Review": {
+      "get": {
+        "tags": [
+          "Review"
+        ],
+        "summary": "Lista las reseñas de una propiedad.",
+        "description": "Endpoint público.",
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "query",
+            "description": "Identificador de la propiedad.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reseñas de la propiedad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReviewResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe la propiedad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Review"
+        ],
+        "summary": "Crea una reseña para una propiedad.",
+        "description": "Solo los huéspedes que completaron una estadía en la propiedad pueden dejar una reseña.",
+        "requestBody": {
+          "description": "Calificación, comentario y propiedad reseñada.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ReviewRequestDTO"
+                  }
+                ],
+                "description": "Datos que envía el usuario al crear o editar una reseña."
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ReviewRequestDTO"
+                  }
+                ],
+                "description": "Datos que envía el usuario al crear o editar una reseña."
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ReviewRequestDTO"
+                  }
+                ],
+                "description": "Datos que envía el usuario al crear o editar una reseña."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Reseña creada correctamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "El usuario no completó una estadía o ya reseñó esta propiedad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe la propiedad.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Review/{id}": {
+      "delete": {
+        "tags": [
+          "Review"
+        ],
+        "summary": "Elimina una reseña inapropiada (moderación).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador de la reseña a eliminar.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Reseña eliminada correctamente."
+          },
+          "404": {
+            "description": "No existe la reseña.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Review"
+        ],
+        "summary": "Obtiene una reseña por su identificador.",
+        "description": "Endpoint público.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador de la reseña.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle de la reseña.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResponseDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe la reseña.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Review"
+        ],
+        "summary": "Edita una reseña propia.",
+        "description": "Solo el autor de la reseña puede modificarla.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador de la reseña.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Nuevos datos de la reseña.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ReviewRequestDTO"
+                  }
+                ],
+                "description": "Datos que envía el usuario al crear o editar una reseña."
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ReviewRequestDTO"
+                  }
+                ],
+                "description": "Datos que envía el usuario al crear o editar una reseña."
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ReviewRequestDTO"
+                  }
+                ],
+                "description": "Datos que envía el usuario al crear o editar una reseña."
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Reseña actualizada correctamente."
+          },
+          "404": {
+            "description": "No existe la reseña.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Review/all": {
+      "get": {
+        "tags": [
+          "Review"
+        ],
+        "summary": "Lista todas las reseñas del sistema (moderación).",
+        "description": "Solo accesible para el administrador.",
+        "responses": {
+          "200": {
+            "description": "Todas las reseñas ordenadas por fecha descendente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReviewResponseDTO"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Lista los usuarios con filtros opcionales.",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "description": "Filtrar por email (coincidencia).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "description": "Filtrar por rol (`User`, `Owner` o `Admin`).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "in": "query",
+            "description": "Filtrar por estado de habilitación.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuarios que cumplen los filtros.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserListDTO"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Algún filtro tiene un valor inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Users/{id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Obtiene el detalle de un usuario por su identificador.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador del usuario.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle del usuario.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailDTO"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe el usuario.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Users/{id}/role": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Cambia el rol de un usuario.",
+        "description": "🔒 **Roles permitidos:** Admin.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador del usuario.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Nuevo rol a asignar.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateUserRoleDTO"
+                  }
+                ],
+                "description": "Nuevo rol que el administrador asigna a un usuario."
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateUserRoleDTO"
+                  }
+                ],
+                "description": "Nuevo rol que el administrador asigna a un usuario."
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateUserRoleDTO"
+                  }
+                ],
+                "description": "Nuevo rol que el administrador asigna a un usuario."
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Rol actualizado correctamente."
+          },
+          "400": {
+            "description": "El rol indicado es inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe el usuario.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "El cambio de rol no está permitido para este usuario.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/Users/{id}/status": {
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Habilita o deshabilita (baja lógica) la cuenta de un usuario.",
+        "description": "🔒 **Roles permitidos:** Admin.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador del usuario.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Estado de habilitación a aplicar.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateUserStatusDTO"
+                  }
+                ],
+                "description": "Estado de habilitación que el administrador aplica a un usuario."
+              }
+            },
+            "text/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateUserStatusDTO"
+                  }
+                ],
+                "description": "Estado de habilitación que el administrador aplica a un usuario."
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateUserStatusDTO"
+                  }
+                ],
+                "description": "Estado de habilitación que el administrador aplica a un usuario."
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Estado actualizado correctamente."
+          },
+          "404": {
+            "description": "No existe el usuario.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La operación no está permitida para este usuario.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado: falta el token JWT o no es válido."
+          },
+          "403": {
+            "description": "Autenticado, pero el rol del usuario no tiene permiso para este recurso."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AdminStatsDTO": {
+        "type": "object",
+        "properties": {
+          "usersByRole": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "totalProperties": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalReviews": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reservationsByStatus": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "pendingPayments": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AmenityRequestDTO": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "minLength": 2,
+            "type": "string",
+            "description": "Nombre del servicio (entre 2 y 100 caracteres).",
+            "example": "Wi-Fi"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Datos requeridos para crear o actualizar un servicio."
+      },
+      "AmenityResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ChangeReservationStatusDTO": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReservationStatus"
+              }
+            ],
+            "description": "Estado destino de la reserva (ver valores posibles en el esquema).",
+            "example": 2
+          }
+        },
+        "additionalProperties": false,
+        "description": "Nuevo estado que el dueño quiere asignar a una reserva."
+      },
+      "LoginResponseDTO": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "user": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserResponseDTO"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "MyReservationResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "propertyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "propertyTitle": {
+            "type": "string"
+          },
+          "propertyImageUrl": {
+            "type": "string"
+          },
+          "guestId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "totalPrice": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "type": "string"
+          },
+          "hasReview": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PaymentMethod": {
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "type": "integer",
+        "description": "Valores posibles:\r\n- `0` → **CreditCard**\r\n- `1` → **DebitCard**\r\n- `2` → **PayPal**\r\n- `3` → **BankTransfer**",
+        "format": "int32"
+      },
+      "PaymentResponseDTO": {
+        "type": "object",
+        "properties": {
+          "paymentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PaymentStatus": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "description": "Valores posibles:\r\n- `0` → **UnderReview**\r\n- `1` → **Approved**\r\n- `2` → **Rejected**",
+        "format": "int32"
+      },
+      "PendingPaymentListDTO": {
+        "type": "object",
+        "properties": {
+          "paymentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reservationId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "propertyName": {
+            "type": "string"
+          },
+          "guestEmail": {
+            "type": "string"
+          },
+          "reservationStart": {
+            "type": "string",
+            "format": "date"
+          },
+          "reservationEnd": {
+            "type": "string",
+            "format": "date"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "paymentMethod": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "uploadedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      },
+      "PropertyAvailabilityPublicDTO": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PropertyAvailabilityRequestDTO": {
+        "required": [
+          "endDate",
+          "propertyId",
+          "startDate"
+        ],
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "description": "Fecha de inicio del rango disponible.",
+            "format": "date",
+            "example": "2026-01-01"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "Fecha de fin del rango disponible.",
+            "format": "date",
+            "example": "2026-12-31"
+          },
+          "propertyId": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Identificador de la propiedad.",
+            "format": "int32",
+            "example": 1
+          }
+        },
+        "additionalProperties": false,
+        "description": "Datos requeridos para crear o actualizar un rango de disponibilidad."
+      },
+      "PropertyAvailabilityResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "propertyId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PropertyDetailsResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "nightlyPrice": {
+            "type": "number",
+            "format": "double"
+          },
+          "maxGuests": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "bedrooms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "bathrooms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "streetAddress": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "description": {
+            "type": "string"
+          },
+          "averageRating": {
+            "type": "number",
+            "format": "double"
+          },
+          "amenities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AmenityResponseDTO"
+            }
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PropertyImageResponseDTO"
+            }
+          },
+          "reviews": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewResponseDTO"
+            }
+          },
+          "availableRanges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PropertyAvailabilityPublicDTO"
+            }
+          },
+          "reservedRanges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReservationPublicDTO"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "PropertyImageResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "url": {
+            "type": "string"
+          },
+          "isMainImage": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "propertyId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PropertyListResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "nightlyPrice": {
+            "type": "number",
+            "format": "double"
+          },
+          "maxGuests": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "bedrooms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "bathrooms": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "streetAddress": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "averageRating": {
+            "type": "number",
+            "format": "double"
+          },
+          "mainImage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PropertyImageResponseDTO"
+              }
+            ],
+            "nullable": true
+          },
+          "isDeleted": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PropertyRequestDTO": {
+        "required": [
+          "bathrooms",
+          "bedrooms",
+          "city",
+          "country",
+          "maxGuests",
+          "nightlyPrice",
+          "postalCode",
+          "state",
+          "streetAddress",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Título de la publicación.",
+            "example": "Casa Alpina"
+          },
+          "nightlyPrice": {
+            "minimum": 0,01,
+            "type": "number",
+            "description": "Precio por noche.",
+            "format": "double",
+            "example": 120000
+          },
+          "maxGuests": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Capacidad máxima de huéspedes.",
+            "format": "int32",
+            "example": 4
+          },
+          "bedrooms": {
+            "maximum": 2147483647,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Cantidad de habitaciones.",
+            "format": "int32",
+            "example": 3
+          },
+          "bathrooms": {
+            "maximum": 2147483647,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Cantidad de baños.",
+            "format": "int32",
+            "example": 2
+          },
+          "city": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string",
+            "description": "Ciudad de la propiedad.",
+            "example": "Rosario"
+          },
+          "state": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string",
+            "description": "Provincia o estado.",
+            "example": "Santa Fe"
+          },
+          "country": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string",
+            "description": "País.",
+            "example": "Argentina"
+          },
+          "streetAddress": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string",
+            "description": "Dirección (calle y número).",
+            "example": "Calle Montaña 123"
+          },
+          "postalCode": {
+            "maximum": 99999,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Código postal (entre 1 y 99999).",
+            "format": "int32",
+            "example": 2000
+          },
+          "description": {
+            "maxLength": 3000,
+            "minLength": 0,
+            "type": "string",
+            "description": "Descripción de la propiedad (hasta 3000 caracteres).",
+            "example": "Encantadora casa de montaña, ideal para familias, con amplio jardín y entorno tranquilo."
+          },
+          "amenityIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "IDs de los servicios (amenities) a asociar, elegidos de la lista existente.",
+            "example": [
+              1,
+              2
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "description": "Datos que envía el dueño al crear o editar una propiedad."
+      },
+      "ReservationPublicDTO": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReservationRequestDTO": {
+        "type": "object",
+        "properties": {
+          "propertyId": {
+            "type": "integer",
+            "description": "Identificador de la propiedad a reservar.",
+            "format": "int32",
+            "example": 1
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Fecha de inicio de la estadía (check-in).",
+            "format": "date",
+            "example": "2026-08-05"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "Fecha de fin de la estadía (check-out).",
+            "format": "date",
+            "example": "2026-08-10"
+          },
+          "totalGuests": {
+            "type": "integer",
+            "description": "Cantidad total de huéspedes.",
+            "format": "int32",
+            "example": 2
+          }
+        },
+        "additionalProperties": false,
+        "description": "Datos que envía el huésped al crear una reserva."
+      },
+      "ReservationResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "propertyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "propertyTitle": {
+            "type": "string"
+          },
+          "propertyImageUrl": {
+            "type": "string"
+          },
+          "guestId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "guestName": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "totalPrice": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "type": "string"
+          },
+          "hasReview": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ReservationStatus": {
+        "enum": [
+          0,
+          1,
+          2,
+          4,
+          5
+        ],
+        "type": "integer",
+        "description": "Valores posibles:\r\n- `0` → **PendingPayment**\r\n- `1` → **PaymentUploaded**\r\n- `2` → **Confirmed**\r\n- `4` → **Cancelled**\r\n- `5` → **Completed**",
+        "format": "int32"
+      },
+      "ReviewRequestDTO": {
+        "required": [
+          "comment",
+          "propertyId",
+          "rating"
+        ],
+        "type": "object",
+        "properties": {
+          "rating": {
+            "maximum": 5,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Calificación de la propiedad, del 1 al 5.",
+            "format": "int32",
+            "example": 5
+          },
+          "comment": {
+            "maxLength": 1000,
+            "minLength": 10,
+            "type": "string",
+            "description": "Comentario de la reseña (entre 10 y 1000 caracteres).",
+            "example": "Excelente lugar, muy limpio y con una vista increíble."
+          },
+          "propertyId": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Identificador de la propiedad reseñada.",
+            "format": "int32",
+            "example": 1
+          }
+        },
+        "additionalProperties": false,
+        "description": "Datos que envía el usuario al crear o editar una reseña."
+      },
+      "ReviewResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "rating": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "propertyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "propertyName": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "userEmail": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Role": {
+        "enum": [
+          0,
+          1,
+          2
+        ],
+        "type": "integer",
+        "description": "Valores posibles:\r\n- `0` → **User**\r\n- `1` → **Owner**\r\n- `2` → **Admin**",
+        "format": "int32"
+      },
+      "UpdateUserRoleDTO": {
+        "required": [
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "role": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Role"
+              }
+            ],
+            "description": "Rol destino. 0 = User, 1 = Owner, 2 = Admin.",
+            "example": 1
+          }
+        },
+        "additionalProperties": false,
+        "description": "Nuevo rol que el administrador asigna a un usuario."
+      },
+      "UpdateUserStatusDTO": {
+        "required": [
+          "isActive"
+        ],
+        "type": "object",
+        "properties": {
+          "isActive": {
+            "type": "boolean",
+            "description": "`true` para habilitar la cuenta; `false` para darla de baja lógicamente.",
+            "example": false
+          }
+        },
+        "additionalProperties": false,
+        "description": "Estado de habilitación que el administrador aplica a un usuario."
+      },
+      "UserDetailDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reservationsCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "propertiesCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserListDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserLoginDTO": {
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Email de la cuenta.",
+            "format": "email",
+            "example": "user1@example.com"
+          },
+          "password": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Contraseña de la cuenta.",
+            "example": "user1"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Credenciales que envía el usuario para iniciar sesión."
+      },
+      "UserRegisterDTO": {
+        "required": [
+          "email",
+          "lastName",
+          "name",
+          "password",
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "description": "Nombre del usuario.",
+            "example": "Juan"
+          },
+          "lastName": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "description": "Apellido del usuario.",
+            "example": "Pérez"
+          },
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Email único de la cuenta.",
+            "format": "email",
+            "example": "juan.perez@example.com"
+          },
+          "password": {
+            "maxLength": 100,
+            "minLength": 6,
+            "type": "string",
+            "description": "Contraseña (entre 6 y 100 caracteres).",
+            "example": "secret123"
+          },
+          "phone": {
+            "maxLength": 20,
+            "type": "string",
+            "description": "Teléfono de contacto (opcional).",
+            "nullable": true,
+            "example": "3415551234"
+          },
+          "role": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Role"
+              }
+            ],
+            "description": "Rol con el que se registra el usuario. 0 = User (huésped), 1 = Owner (dueño).",
+            "example": 0
+          }
+        },
+        "additionalProperties": false,
+        "description": "Datos que envía el usuario al registrarse en el sistema."
+      },
+      "UserResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "Autenticación JWT. Pegá únicamente el token (Swagger antepone «Bearer » por vos).",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Admin",
+      "description": "Panel del administrador. Expone las estadísticas generales del sistema.\r\nTodos los endpoints requieren el rol `Admin`."
+    },
+    {
+      "name": "Amenity",
+      "description": "Servicios (*amenities*) que pueden asociarse a las propiedades. La consulta es\r\npública; el alta, la edición y la baja están reservadas al administrador."
+    },
+    {
+      "name": "Auth",
+      "description": "Autenticación y registro de usuarios. Expone el alta de cuentas, el inicio de sesión\r\n(que devuelve el token JWT) y la consulta del usuario autenticado."
+    },
+    {
+      "name": "Payments",
+      "description": "Comprobantes de pago: el huésped sube el comprobante de su reserva y puede eliminarlo\r\nmientras esté en revisión; el dueño (o el administrador) lo consulta y lo aprueba o rechaza."
+    },
+    {
+      "name": "PropertyAvailability",
+      "description": "Rangos de disponibilidad de cada propiedad. La consulta es pública; la creación,\r\nedición y baja de rangos quedan reservadas al dueño de la propiedad."
+    },
+    {
+      "name": "Property",
+      "description": "Gestión de propiedades: listado y búsqueda públicos, alta/edición/baja para dueños\r\ny administradores, y restauración de bajas lógicas reservada al administrador."
+    },
+    {
+      "name": "PropertyImage",
+      "description": "Imágenes de las propiedades: consulta pública y operaciones de carga, marcado de\r\nimagen principal y baja, reservadas al dueño de la propiedad."
+    },
+    {
+      "name": "Reservation",
+      "description": "Ciclo de vida de las reservas: creación por parte del huésped, consultas para\r\nhuéspedes, dueños y administradores, y cambios de estado de la reserva."
+    },
+    {
+      "name": "Review",
+      "description": "Reseñas de las propiedades: consulta pública, alta y edición por parte del autor\r\n(huésped) y moderación (baja) reservada al administrador."
+    },
+    {
+      "name": "Users",
+      "description": "Gestión de usuarios del sistema (panel de administración): listado con filtros,\r\ndetalle, cambio de rol y habilitación/baja lógica de cuentas. Reservado a administradores."
+    }
+  ]
+}

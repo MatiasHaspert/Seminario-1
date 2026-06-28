@@ -1,0 +1,179 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+
+\geometry{
+  top=3cm,
+  bottom=2.5cm,
+  left=3cm,
+  right=2.5cm
+}
+
+\hypersetup{
+  colorlinks=false
+}
+
+\titleformat{\section}
+  {\large\bfseries}
+  {\thesection.}{0.5em}{}[\titlerule]
+
+\titleformat{\subsection}
+  {\normalsize\bfseries}
+  {\thesubsection.}{0.5em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small PropertyReservation}
+\lhead{\small Seminario I}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% --- DOCUMENTO ---
+
+\begin{document}
+
+% ---------------------------------------------------------
+% CARÁTULA
+% ---------------------------------------------------------
+\begin{titlepage}
+  \centering
+  \vspace*{1cm}
+
+  \includegraphics[width=2.5cm]{logo_ips.png}
+
+  \vspace{0.5cm}
+
+  {\large \textbf{Instituto Politécnico Superior ``Gral. San Martín''} \par}
+  \vspace{0.2cm}
+  {\normalsize Analista Universitario en Sistemas \par}
+  \vspace{0.1cm}
+  {\normalsize Seminario I \par}
+
+  \vspace{1.5cm}
+
+  {\LARGE \textbf{PropertyReservation} \par}
+  \vspace{0.2cm}
+  {\normalsize \textit{Descripción funcional del sistema} \par}
+
+  \vspace{1.5cm}
+
+  {\normalsize \textbf{Alumnos:} Matías Haspert y Virginia Bonservizi \par}
+
+  \vspace{1.5cm}
+
+  \tableofcontents
+
+  \vfill
+\end{titlepage}
+
+\newpage
+
+% ---------------------------------------------------------
+% 1. DESCRIPCIÓN GENERAL
+% ---------------------------------------------------------
+\section{Descripción general del sistema}
+
+\textbf{PropertyReservation} es un sistema de publicación y reserva de propiedades de alojamiento
+temporario. Conecta a propietarios que quieren ofrecer sus inmuebles con huéspedes que buscan
+dónde hospedarse en fechas específicas.
+
+El sistema acompaña el proceso completo: el propietario publica su propiedad, el huésped la
+encuentra y hace una reserva, luego sube un comprobante de pago que el dueño revisa, y al
+finalizar la estadía el huésped puede dejar una reseña.
+
+El sistema tiene dos interfaces: una \textbf{aplicación web} pensada para el uso general de
+huéspedes y propietarios, y una \textbf{aplicación de escritorio} orientada a la gestión
+administrativa y moderación de reseñas.
+
+% ---------------------------------------------------------
+% 2. ALCANCE
+% ---------------------------------------------------------
+\section{Alcance del sistema}
+
+El sistema cubre los siguientes módulos:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Gestión de usuarios:} registro e inicio de sesión con roles diferenciados.
+  \item \textbf{Gestión de propiedades:} publicación, edición, carga de fotos y asignación de amenities.
+  \item \textbf{Disponibilidad:} los propietarios configuran los períodos en que su propiedad acepta reservas.
+  \item \textbf{Búsqueda y reserva:} los huéspedes buscan propiedades por destino y fechas, y generan reservas. Cada reserva pasa por estados sucesivos: pendiente de pago, comprobante enviado, confirmada, completada o cancelada.
+  \item \textbf{Comprobantes de pago:} el huésped sube una imagen de comprobante; el propietario la aprueba o rechaza. El sistema no procesa pagos reales ni se integra con pasarelas de pago.
+  \item \textbf{Reseñas:} al completarse una estadía, el huésped puede calificar la propiedad.
+  \item \textbf{Panel de propietario:} resumen de propiedades y reservas pendientes de atención.
+  \item \textbf{Aplicación de escritorio:} interfaz para el administrador, desde donde gestiona amenities, consulta estadísticas generales y modera reseñas.
+\end{itemize}
+
+\subsection{Fuera del alcance}
+
+\begin{itemize}[leftmargin=1.5em]
+  \item Integración con pasarelas de pago (tarjeta, PayPal, transferencias bancarias en tiempo real).
+  \item Mensajería entre huéspedes y propietarios.
+\end{itemize}
+
+% ---------------------------------------------------------
+% 3. ROLES Y FUNCIONALIDADES
+% ---------------------------------------------------------
+\section{Roles y funcionalidades}
+
+El sistema tiene tres tipos de usuario. Un mismo usuario no puede ser huésped y propietario
+al mismo tiempo; el rol se define en el momento del registro.
+
+\subsection{Huésped}
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Registro e inicio de sesión}: crea una cuenta y accede con sus credenciales.
+  \item \textbf{Búsqueda}: explora propiedades publicadas, filtra por destino y fechas, y ve los detalles de cada una (fotos, amenities, precio por noche y reseñas).
+  \item \textbf{Reserva}: elige una propiedad con fechas disponibles y genera la reserva.
+  \item \textbf{Comprobante de pago}: sube una imagen del comprobante para que el propietario la revise. No se realiza ningún pago a través del sistema.
+  \item \textbf{Mis reservas}: consulta el estado de sus reservas actuales e históricas.
+  \item \textbf{Reseñas}: al finalizar la estadía puede calificar la propiedad con 1 a 5 estrellas y un comentario.
+\end{itemize}
+
+\subsection{Propietario}
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Publicación de propiedades}: crea y edita sus propiedades con descripción, tipo, dirección, precio por noche y fotos.
+  \item \textbf{Amenities}: indica qué servicios ofrece (Wi-Fi, estacionamiento, pileta, etc.) desde un listado predefinido.
+  \item \textbf{Disponibilidad}: define los períodos en que cada propiedad acepta reservas.
+  \item \textbf{Reservas recibidas}: ve las reservas de sus propiedades con los datos del huésped, fechas y estado.
+  \item \textbf{Revisión de comprobantes}: aprueba o rechaza el comprobante que sube el huésped. Si lo aprueba, la reserva queda confirmada.
+\end{itemize}
+
+\subsection{Administrador}
+
+Accede al sistema únicamente a través de la aplicación de escritorio.
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Estadísticas}: panel con totales de reservas, propiedades y usuarios registrados.
+  \item \textbf{Amenities}: crea, edita y elimina las amenities disponibles en el sistema. No puede eliminar una comodidad que esté asignada a alguna propiedad.
+  \item \textbf{Moderación de reseñas}: revisa y gestiona las reseñas publicadas en el sistema.
+\end{itemize}
+
+% ---------------------------------------------------------
+% 4. TECNOLOGÍAS UTILIZADAS
+% ---------------------------------------------------------
+\section{Tecnologías utilizadas}
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{React} (JavaScript) — interfaz web.
+  \item \textbf{C\# con .NET 8} — servidor backend con API REST.
+  \item \textbf{SQL Server} — base de datos relacional.
+  \item \textbf{JWT} — autenticación y control de acceso por rol.
+  \item \textbf{Windows Forms (C\#)} — aplicación de escritorio para el administrador.
+\end{itemize}
+
+
+\end{document}
+

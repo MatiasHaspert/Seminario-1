@@ -1,0 +1,42 @@
+/* date-field wraps the trigger row + calendar popup */
+.date-field {
+  position: relative;
+  flex: 1.8;
+  min-width: 0;
+}
+
+/* Calendar popup — position:fixed applied via inline style to escape overflow:hidden parents */
+.calendar-popup {
+  z-index: 1200;
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #e7e5e4);
+  border-radius: var(--radius-lg, 20px);
+  padding: 14px;
+  box-shadow: var(--shadow-lg, 0 12px 40px rgba(28,25,23,0.12));
+  animation: scaleIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Buttons within the popup */
+.calendar-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border, #e7e5e4);
+}
+
+/* react-day-picker theme overrides */
+.rdp {
+  --rdp-accent-color: var(--brand, #b45309);
+  --rdp-background-color: var(--brand-light, #fef3c7);
+  --rdp-accent-color-dark: var(--brand-600, #92400e);
+  --rdp-background-color-dark: var(--cream, #f5f0e8);
+  font-family: var(--font-body, system-ui);
+  font-size: 0.88rem;
+}
+
+@media (max-width: 768px) {
+  .calendar-popup {
+    max-width: calc(100vw - 16px);
+  }
+}

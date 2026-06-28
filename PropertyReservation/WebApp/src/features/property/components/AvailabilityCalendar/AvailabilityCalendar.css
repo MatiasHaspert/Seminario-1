@@ -1,0 +1,110 @@
+/* === Estilos generales del calendario === */
+.rdp {
+    --rdp-cell-size: 32px;
+    --rdp-accent-color: #0dcaf0;
+    --rdp-background-color: #f8f9fa;
+    --rdp-outline: none;
+    font-size: 0.85rem;
+}
+
+.rdp-months {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.rdp-caption {
+    font-size: 0.85rem;
+}
+
+.rdp-caption_label {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.rdp-head_cell {
+    font-size: 0.75rem;
+}
+
+.rdp-day {
+    position: relative;
+    font-size: 0.8rem;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* === D�as seleccionados === */
+.selected-day,
+.rdp-day_range_middle,
+.rdp-day_range_start,
+.rdp-day_range_end {
+    background-color: #0dcaf0 !important; /* celeste */
+    color: #fff !important;
+    border-radius: 0 !important;
+}
+
+/* === Bordes suaves para los extremos del rango === */
+.rdp-day_range_start {
+    border-top-left-radius: 50% !important;
+    border-bottom-left-radius: 50% !important;
+}
+
+.rdp-day_range_end {
+    border-top-right-radius: 50% !important;
+    border-bottom-right-radius: 50% !important;
+}
+
+/* === D�as deshabilitados (reservados) === */
+.disabled-day {
+    color: #b0b0b0 !important;
+    text-decoration: line-through !important;
+    cursor: not-allowed !important;
+    background-color: transparent !important;
+}
+
+/* === Hover sobre d�as seleccionables === */
+.rdp-day:hover:not([aria-disabled="true"]) {
+    background-color: #e0f7ff !important;
+    color: #000 !important;
+}
+
+/* === Tooltip visual para d�a de check-in === */
+.rdp-day_range_start::after {
+    content: "Check-in";
+    position: absolute;
+    top: -26px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #0dcaf0;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/* === Tooltip visual para d�a de check-out === */
+.rdp-day_range_end::after {
+    content: "Check-out";
+    position: absolute;
+    top: -26px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #0dcaf0;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/* === Mostrar tooltip solo al pasar el mouse === */
+.rdp-day_range_start:hover::after,
+.rdp-day_range_end:hover::after {
+    opacity: 1;
+}

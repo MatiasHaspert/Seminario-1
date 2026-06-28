@@ -1,0 +1,119 @@
+/* ── Backdrop ─────────────────────────────────────────────── */
+.cd-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 25, 23, 0.55);
+  backdrop-filter: blur(3px);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.18s ease both;
+}
+
+/* ── Dialog card ──────────────────────────────────────────── */
+.cd-dialog {
+  background: var(--surface, #fff);
+  border-radius: var(--radius-xl, 24px);
+  padding: 36px 32px 28px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(28, 25, 23, 0.2), 0 4px 16px rgba(28, 25, 23, 0.1);
+  animation: scaleIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Icon circle ──────────────────────────────────────────── */
+.cd-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+}
+
+.cd-icon-danger  { background: #fee2e2; color: #dc2626; }
+.cd-icon-warning { background: #fef3c7; color: var(--brand, #b45309); }
+.cd-icon-default { background: #dbeafe; color: #2563eb; }
+
+/* ── Text ─────────────────────────────────────────────────── */
+.cd-title {
+  font-family: var(--font-display, serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--charcoal, #1c1917);
+  margin: 0 0 10px;
+}
+
+.cd-message {
+  font-family: var(--font-body, system-ui);
+  font-size: 0.925rem;
+  color: var(--stone, #78716c);
+  line-height: 1.6;
+  margin: 0 0 28px;
+}
+
+/* ── Action buttons ───────────────────────────────────────── */
+.cd-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.cd-btn {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-md, 12px);
+  font-family: var(--font-body, system-ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+.cd-btn:active { transform: translateY(1px); }
+
+.cd-btn-cancel {
+  background: var(--cream, #f5f0e8);
+  color: var(--stone, #78716c);
+}
+.cd-btn-cancel:hover {
+  background: var(--border, #e7e5e4);
+  color: var(--charcoal, #1c1917);
+}
+
+.cd-btn-danger {
+  background: #dc2626;
+  color: #fff;
+}
+.cd-btn-danger:hover {
+  background: #b91c1c;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+}
+
+.cd-btn-warning {
+  background: var(--brand, #b45309);
+  color: #fff;
+}
+.cd-btn-warning:hover {
+  background: var(--brand-600, #92400e);
+  box-shadow: 0 4px 14px rgba(180, 83, 9, 0.35);
+}
+
+.cd-btn-default {
+  background: #2563eb;
+  color: #fff;
+}
+.cd-btn-default:hover {
+  background: #1d4ed8;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
+/* ── Mobile ───────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .cd-dialog { padding: 28px 20px 22px; }
+  .cd-actions { flex-direction: column-reverse; }
+}
